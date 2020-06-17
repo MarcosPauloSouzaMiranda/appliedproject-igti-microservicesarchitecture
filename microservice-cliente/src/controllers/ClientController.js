@@ -1,9 +1,14 @@
+const ClientService = require('../services/ClientService');
+
 class ClientController {
-  indexById (req, res) {
+  async indexById (req, res) {
     try {
+      const _id = req.params.id;
+      const _clientModel = await ClientService.indexById(_id);
+      
       res
         .status(200)
-        .json({msg: 'Sucesso!'});
+        .json(_clientModel);
     } catch (e) {
       res
         .status(500)
@@ -11,11 +16,15 @@ class ClientController {
     }
   }
 
-  index (req, res) {
+  async index (req, res) {
     try {
+      let _textFilter = req.query.textFilter;
+      if (!_textFilter) _textFilter = '';
+      const _clientsModel = await ClientService.index(_textFilter);
+
       res
         .status(200)
-        .json({msg: 'Sucesso!'});
+        .json(_clientsModel);
     } catch (e) {
       res
         .status(500)
@@ -23,11 +32,19 @@ class ClientController {
     }
   }
 
-  store (req, res) {
+  async store (req, res) {
     try {
+      const _data = {
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
+        creditLimit: req.body.creditLimit,
+        isActive: req.body.isActive
+      }
+      const _clientModel = await ClientService.store(_data);
+
       res
         .status(200)
-        .json({msg: 'Sucesso!'});
+        .json(_clientModel);
     } catch (e) {
       res
         .status(500)
@@ -35,11 +52,20 @@ class ClientController {
     }
   }
 
-  update (req, res) {
+  async update (req, res) {
     try {
+      const _id = req.params.id;
+      const _data = {
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
+        creditLimit: req.body.creditLimit,
+        isActive: req.body.isActive
+      }
+      const _clientModel = await ClientService.update(_id, _data);
+
       res
         .status(200)
-        .json({msg: 'Sucesso!'});
+        .json(_clientModel);
     } catch (e) {
       res
         .status(500)
@@ -47,11 +73,14 @@ class ClientController {
     }
   }
 
-  delete (req, res) {
+  async delete (req, res) {
     try {
+      const _id = req.params.id;
+      await ClientService.delete(_id);
+
       res
         .status(200)
-        .json({msg: 'Sucesso!'});
+        .json({ msg: 'Cliente apagado com sucesso!' });
     } catch (e) {
       res
         .status(500)
