@@ -24,6 +24,12 @@ class ProductService {
       }
     });
 
+    _productsModel.forEach(_productModel => {
+      if ((!_productModel.isImageUploadProd) && (_productModel.imageProd)) {
+        _productModel.imageProd = `${process.env.DOMAIN_STATIC}${_productModel.imageProd}`
+      }
+    });
+
     return _productsModel;
   }
 
@@ -33,6 +39,10 @@ class ProductService {
     const _productModel = await Product.findByPk(_id);
 
     if (!_productModel) throw new Error('O produto não foi encontrado na base de dados!');
+
+    if ((!_productModel.isImageUploadProd) && (_productModel.imageProd)) {
+      _productModel.imageProd = `${process.env.DOMAIN_STATIC}${_productModel.imageProd}`
+    }
 
     return _productModel;
   }

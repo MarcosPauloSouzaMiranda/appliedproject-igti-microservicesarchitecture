@@ -15,6 +15,8 @@ class App {
 
     this.app.use(express.json({limit: '50mb'}));
 
+    this.app.use('/public', express.static('./src/uploads/'));
+
     const routes = require('./routes');
     this.app.use(routes);
   }
