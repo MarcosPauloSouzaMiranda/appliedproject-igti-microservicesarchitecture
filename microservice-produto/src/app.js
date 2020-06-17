@@ -13,7 +13,7 @@ class App {
     const cors = require('cors');
     this.app.use(cors());
 
-    this.app.use(express.json());
+    this.app.use(express.json({limit: '50mb'}));
 
     const routes = require('./routes');
     this.app.use(routes);
