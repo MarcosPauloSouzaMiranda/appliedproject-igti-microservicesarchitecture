@@ -1,9 +1,14 @@
+const SaleHeaderService = require('../services/SaleHeaderService');
+
 class SaleHeaderController {
-  indexById (req, res) {
+  async indexById (req, res) {
     try {
+      const _id = req.params.id;
+      const _saleModel = await SaleHeaderService.indexById(_id);
+
       res
         .status(200)
-        .json({msg: 'Sucesso'});
+        .json(_saleModel);
     } catch (e) {
       res
         .status(500)
@@ -11,11 +16,15 @@ class SaleHeaderController {
     }
   }
 
-  index (req, res) {
+  async index (req, res) {
     try {
+      let _textFilter = req.query.textFilter;
+      if (!_textFilter) _textFilter = '';
+      const _salesModel = await SaleHeaderService.index(_textFilter);
+
       res
         .status(200)
-        .json({msg: 'Sucesso'});
+        .json(_salesModel);
     } catch (e) {
       res
         .status(500)
@@ -23,11 +32,21 @@ class SaleHeaderController {
     }
   }
 
-  store (req, res) {
+  async store (req, res) {
     try {
+      const _data = {
+        dateTime: req.body.dateTime,
+        clientId: req.body.clientId,
+        clientFirstName: req.body.clientFirstName,
+        clientLastName: req.body.clientLastName,
+        totalSale: 0,
+        stateSale: 'Criado'
+      }
+      const _saleModel = await SaleHeaderService.store(_data);
+
       res
         .status(200)
-        .json({msg: 'Sucesso'});
+        .json(_saleModel);
     } catch (e) {
       res
         .status(500)
@@ -35,11 +54,22 @@ class SaleHeaderController {
     }
   }
 
-  update (req, res) {
+  async update (req, res) {
     try {
+      const _id = req.params.id;
+      const _data = {
+        dateTime: req.body.dateTime,
+        clientId: req.body.clientId,
+        clientFirstName: req.body.clientFirstName,
+        clientLastName: req.body.clientLastName,
+        totalSale: req.body.totalSale,
+        stateSale: req.body.stateSale
+      }
+      const _saleModel = await SaleHeaderService.update(_id, _data);
+
       res
         .status(200)
-        .json({msg: 'Sucesso'});
+        .json(_saleModel);
     } catch (e) {
       res
         .status(500)
@@ -47,11 +77,14 @@ class SaleHeaderController {
     }
   }
 
-  delete (req, res) {
+  async delete (req, res) {
     try {
+      const _id = req.params.id;
+      await SaleHeaderService.delete(_id);
+
       res
         .status(200)
-        .json({msg: 'Sucesso'});
+        .json({ msg: 'A venda foi apagada com sucesso!' });
     } catch (e) {
       res
         .status(500)
