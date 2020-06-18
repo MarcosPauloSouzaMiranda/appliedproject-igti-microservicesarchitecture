@@ -1,9 +1,15 @@
+const SaleItemService = require('../services/SaleItemService');
+
 class SaleItemController {
-  indexById (req, res) {
+  async indexById (req, res) {
     try {
+      const _idHeader = req.params.idHeader;
+      const _idItem = req.params.idItem;
+      const _saleItemModel = await SaleItemService.indexById(_idHeader, _idItem);
+
       res
         .status(200)
-        .json({msg: 'Sucesso'});
+        .json(_saleItemModel);
     } catch (e) {
       res
         .status(500)
@@ -11,11 +17,14 @@ class SaleItemController {
     }
   }
 
-  index (req, res) {
+  async index (req, res) {
     try {
+      const _idHeader = req.params.idHeader;
+      const _saleItemsModel = await SaleItemService.index(_idHeader);
+
       res
         .status(200)
-        .json({msg: 'Sucesso'});
+        .json(_saleItemsModel);
     } catch (e) {
       res
         .status(500)
@@ -23,11 +32,20 @@ class SaleItemController {
     }
   }
 
-  store (req, res) {
+  async store (req, res) {
     try {
+      const _idHeader = req.params.idHeader;
+      const _data = {
+        idProduct: req.body.idProduct,
+        nameProduct: req.body.nameProduct,
+        quantity: req.body.quantity,
+        unitValue: req.body.unitValue
+      }
+      const _saleItemModel = await SaleItemService.store(_idHeader, _data);
+
       res
         .status(200)
-        .json({msg: 'Sucesso'});
+        .json(_saleItemModel);
     } catch (e) {
       res
         .status(500)
@@ -35,11 +53,21 @@ class SaleItemController {
     }
   }
 
-  update (req, res) {
+  async update (req, res) {
     try {
+      const _idHeader = req.params.idHeader;
+      const _idItem = req.params.idItem;
+      const _data = {
+        idProduct: req.body.idProduct,
+        nameProduct: req.body.nameProduct,
+        quantity: req.body.quantity,
+        unitValue: req.body.unitValue
+      }
+      const _saleItemModel = await SaleItemService.update(_idHeader, _idItem, _data);
+
       res
         .status(200)
-        .json({msg: 'Sucesso'});
+        .json(_saleItemModel);
     } catch (e) {
       res
         .status(500)
@@ -47,11 +75,15 @@ class SaleItemController {
     }
   }
 
-  delete (req, res) {
+  async delete (req, res) {
     try {
+      const _idHeader = req.params.idHeader;
+      const _idItem = req.params.idItem;
+      await SaleItemService.delete(_idHeader, _idItem);
+
       res
         .status(200)
-        .json({msg: 'Sucesso'});
+        .json({ msg: 'Item da venda apagado com sucesso!' });
     } catch (e) {
       res
         .status(500)
