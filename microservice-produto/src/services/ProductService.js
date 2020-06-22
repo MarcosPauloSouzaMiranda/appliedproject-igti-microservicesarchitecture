@@ -2,7 +2,7 @@ const Product = require('../models/Product');
 const op = require('sequelize').Op;
 const { v4: uuidv4 } = require('uuid');
 const fs = require('fs').promises;
-
+const kafka = require('kafka-node');
 
 class ProductService {
 
@@ -72,6 +72,12 @@ class ProductService {
       isActiveProd: false
     });
 
+    if (_data.image !== '' &&
+        _data.image !== null &&
+        _data.image !== undefined) {
+      this._emitedMessageKafka(_productModel.idProd);
+    }
+
     return _productModel;
   }
 
@@ -104,6 +110,10 @@ class ProductService {
 
     await _productModel.save();
 
+    if (nameImage) {
+      this._emitedMessageKafka(_productModel.idProd);
+    }
+
     return _productModel;
   }
 
@@ -112,6 +122,25 @@ class ProductService {
 
     const _productModel = await this.indexById(_id);
     await _productModel.destroy();
+  }
+
+  _emitedMessageKafka (_id = null) {
+    const _client = new kafka.KafkaClient({
+      kafkaHost: process.env.DOMAIN_KAFKA
+    });
+    const _producer = new kafka.Producer(_client);
+    _producer.on("ready", () => {
+      _producer.send([{
+        topic: 'product-image',
+        messages: [JSON.stringify({idProduct: _id})],
+      }], (error, data) => {
+        if (error) throw new Error('Ocorreu um erro ao gerar a mensagem da fila de upload de imagens!');
+      });
+    });
+
+    _producer.on('error', (error) => {
+      throw new Error('Ocorreu um erro ao conectar-se no apache kafka!');
+    });
   }
 }
 
