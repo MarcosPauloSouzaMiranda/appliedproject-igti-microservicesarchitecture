@@ -1,6 +1,7 @@
 const SaleHeader = require('../models/SaleHeader');
 const op = require('sequelize').Op;
 const kafka = require('kafka-node');
+const axios = require('axios');
 
 class SaleHeaderService{
   async index (_textFilter = '') {
@@ -98,6 +99,24 @@ class SaleHeaderService{
     _producer.on('error', (error) => {
       throw new Error('Ocorreu um erro ao conectar-se no apache kafka!');
     });
+  }
+
+  async _processSale (_idSale) {
+    const _sale     = await this.indexById(_idSale);
+    _sale.stateSaleHe = 'EmAnalise';
+    await _sale.save();
+
+    const _url      = process.env.DOMAIN_CLIENT + `/client/${_sale.clientIdSaleHe}`;
+    const _response = await axios.get(_url);
+    const _client   = _response.data;
+    
+    if (_sale.totalSaleHe > _client.creditLimitCli) {
+      _sale.stateSaleHe = 'Reprovado';
+      await _sale.save();
+    } else {
+      _sale.stateSaleHe = 'Concluido';
+      await _sale.save();
+    }
   }
 }
 

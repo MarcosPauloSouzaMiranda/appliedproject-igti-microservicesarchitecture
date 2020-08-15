@@ -6,10 +6,10 @@ const dotenvOptions = {
 }
 dotenv.config(dotenvOptions);
 
-// const ProductService = require('../services/ProductService');
+const SaleHeaderService = require('../services/SaleHeaderService');
 
 const _client = new kafka.KafkaClient({
-  kafkaHost: '192.168.99.100:9092'
+  kafkaHost: process.env.DOMAIN_KAFKA
 });
 console.log('Cliente conectado...');
 
@@ -23,6 +23,7 @@ _consumer = new kafka.Consumer(
   }
 );
 console.log('Escutando as mensagens...');
-_consumer.on('message', (message) => {
-  console.log('Processo de vendas: ', message);
+_consumer.on('message', async (message) => {
+  const data = JSON.parse(message.value);
+  await SaleHeaderService._processSale(data.idSale);
 });
