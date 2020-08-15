@@ -1,4 +1,12 @@
 const kafka = require('kafka-node');
+const dotenv = require('dotenv');
+
+const dotenvOptions = {
+  path: process.env.NODE_ENV === 'test' ? '.env.test' : '.env'
+}
+dotenv.config(dotenvOptions);
+
+const ProductService = require('../services/ProductService');
 
 const _client = new kafka.KafkaClient({
   kafkaHost: '192.168.99.100:9092'
@@ -14,13 +22,7 @@ _consumer = new kafka.Consumer(
       autoCommit: true
   }
 );
-console.log('Instância do consumer...');
-
-_consumer.on('ready', () => {
-  console.log('Consumer is ready.');  
-});
-
 console.log('Escutando as mensagens...');
 _consumer.on('message', (message) => {
-  console.log(message.value);
+  ProductService.uploadImage(JSON.parse(message.value).idProduct);
 });

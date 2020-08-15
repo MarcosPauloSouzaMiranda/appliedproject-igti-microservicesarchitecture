@@ -3,6 +3,7 @@ const op = require('sequelize').Op;
 const { v4: uuidv4 } = require('uuid');
 const fs = require('fs').promises;
 const kafka = require('kafka-node');
+const cloudinary = require('cloudinary');
 
 class ProductService {
 
@@ -140,6 +141,35 @@ class ProductService {
 
     _producer.on('error', (error) => {
       throw new Error('Ocorreu um erro ao conectar-se no apache kafka!');
+    });
+  }
+
+  async uploadImage (_id) {
+
+    cloudinary.config({ 
+      cloud_name: 'mpjp-soluces', 
+      api_key: '568245295627585', 
+      api_secret: 'qfDZVAc4z3UHh5wDI2HRVR68Mao' 
+    });
+
+    const product = await this.indexById(_id);
+
+    if (product.isImageUploadProd == 1) throw new Error('Está imagem já foi enviada ao cloudinary!');
+
+    const imageName = product.imageProd.replace(process.env.DOMAIN_STATIC, '');
+
+    cloudinary.v2.uploader.upload('./src/uploads/' + imageName,
+    async (error, result) => {
+
+      if (error) throw new Error(error);    
+
+      await fs.unlink('./src/uploads/' + imageName);
+
+      product.isImageUploadProd = 1;
+      product.imageProd = result.secure_url;
+
+      await product.save();
+      
     });
   }
 }
