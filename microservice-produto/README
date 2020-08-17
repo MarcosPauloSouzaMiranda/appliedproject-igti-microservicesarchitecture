@@ -2,4 +2,4 @@ $ docker build -t marcospsmiranda/microservice-product -f Dockerfile_API .
 $ docker build -t marcospsmiranda/process-product -f Dockerfile_ProcessAsync . 
 
 $ docker run -d -p 8081:3000 --name microservice-product marcospsmiranda/microservice-product 
-$ docker run --name process-product marcospsmiranda/process-product 
+$ docker run -d --name process-product marcospsmiranda/process-product 

@@ -1,0 +1,5 @@
+$ docker build -t marcospsmiranda/microservice-sale -f Dockerfile_API .
+$ docker build -t marcospsmiranda/process-sale -f Dockerfile_ProcessAsync . 
+
+$ docker run -d -p 8083:3000 --name microservice-sale marcospsmiranda/microservice-sale 
+$ docker run -d --name process-sale marcospsmiranda/process-sale 
