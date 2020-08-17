@@ -2,8 +2,10 @@ const Product = require('../models/Product');
 const op = require('sequelize').Op;
 const { v4: uuidv4 } = require('uuid');
 const fs = require('fs').promises;
+const Fs = require('fs');
 const kafka = require('kafka-node');
 const cloudinary = require('cloudinary');
+const Axios = require('axios');
 
 class ProductService {
 
@@ -146,27 +148,37 @@ class ProductService {
 
   async uploadImage (_id) {
 
+    const product = await this.indexById(_id);
+
+    if (product.isImageUploadProd == 1) throw new Error('Está imagem já foi enviada ao cloudinary!');
+
+    const imageURL = product.imageProd;
+    const nameImage = imageURL.replace(process.env.DOMAIN_STATIC, '');
+    const path = `./src/uploads/${nameImage}`;
+
+    const writer = Fs.createWriteStream(path)
+
+    const response = await Axios({
+      url: imageURL,
+      method: 'GET',
+      responseType: 'stream'
+    })
+
+    response.data.pipe(writer)
 
     cloudinary.config({ 
       cloud_name: 'mpjp-soluces', 
       api_key: '568245295627585', 
       api_secret: 'qfDZVAc4z3UHh5wDI2HRVR68Mao' 
     });
-
-    const product = await this.indexById(_id);
-
-    if (product.isImageUploadProd == 1) throw new Error('Está imagem já foi enviada ao cloudinary!');
-
-    const imageName = product.imageProd.replace(process.env.DOMAIN_STATIC, '');
-
-    cloudinary.v2.uploader.upload('./src/uploads/' + imageName,
-    async (error, result) => {
     
+    cloudinary.v2.uploader.upload(`./src/uploads/${nameImage}`,
+    async (error, result) => {
+
       if (error) 
         throw new Error(error);
       
-
-      await fs.unlink('./src/uploads/' + imageName);
+      await fs.unlink('./src/uploads/' + nameImage);
 
       product.isImageUploadProd = 1;
       product.imageProd = result.secure_url;
