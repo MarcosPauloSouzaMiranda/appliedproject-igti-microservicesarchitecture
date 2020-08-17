@@ -146,6 +146,7 @@ class ProductService {
 
   async uploadImage (_id) {
 
+
     cloudinary.config({ 
       cloud_name: 'mpjp-soluces', 
       api_key: '568245295627585', 
@@ -160,8 +161,10 @@ class ProductService {
 
     cloudinary.v2.uploader.upload('./src/uploads/' + imageName,
     async (error, result) => {
-
-      if (error) throw new Error(error);    
+    
+      if (error) 
+        throw new Error(error);
+      
 
       await fs.unlink('./src/uploads/' + imageName);
 
@@ -169,7 +172,7 @@ class ProductService {
       product.imageProd = result.secure_url;
 
       await product.save();
-      
+
     });
   }
 }
